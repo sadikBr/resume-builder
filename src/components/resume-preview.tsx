@@ -1,16 +1,18 @@
 import type { ResumeData } from "@/types/resume"
 import { ExternalLink, Mail, Github, Linkedin } from "lucide-react"
 import Image from "next/image"
+import { Ref } from "react"
 
 interface ResumePreviewProps {
+  resumePreviewRef: Ref<HTMLDivElement>
   data: ResumeData
 }
 
-export default function ResumePreview({ data }: ResumePreviewProps) {
+export default function ResumePreview({ data, resumePreviewRef }: ResumePreviewProps) {
   const { personalInfo, education, experience, skills, projects, languages } = data
 
   return (
-    <div className="font-sans text-sm p-8 max-w-[800px] mx-auto border border-gray-200 shadow-sm bg-white">
+    <div ref={resumePreviewRef} className="font-sans text-sm p-4 w-[595px] h-[842px] mx-auto border border-gray-200 shadow-sm bg-white">
       {/* Header with photo */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex-1">

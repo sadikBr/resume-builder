@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PersonalInfoForm from "@/components/personal-info-form"
@@ -36,6 +36,8 @@ export default function ResumeBuilder() {
     languages: [],
   })
 
+  const resumePreviewRef = useRef<HTMLDivElement>(null);
+
   const updateResumeData = (section: keyof ResumeData, data: any) => {
     setResumeData((prev) => ({
       ...prev,
@@ -43,12 +45,52 @@ export default function ResumeBuilder() {
     }))
   }
 
-  const handleExportPDF = () => {
-    // In a real implementation, this would use a library like jsPDF or html2pdf
-    // to convert the resume preview to a PDF document
-    toast("PDF Export", {
-      description: "Your resume has been exported as a PDF.",
-    })
+  const handleExportPDF = async () => {
+    const element = resumePreviewRef.current
+
+    if (element) {
+      const options = {
+        margin: [0, 0, 0, 0],
+        filename: 'resume.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 4, useCORS: true },
+        jdPDF: { unit: 'px', format: 'a4', orientation: 'portrait' },
+      }
+
+      try {
+        await html2pdf().set(options).from(element).save()
+
+        toast("PDF Exported Successfuly.", {
+          description: "Your pdf file has been generated successfuly."
+        })
+      } catch (_err) {
+        toast("Export Failed", {
+          description: "There was an error while generating your pdf file. Please try again later."
+        })
+      }
+    }
+
+    // Configure pdf options
+    // const opt = {
+    //   margin: [0, 0, 0, 0],
+    //   filename: `${resumeData.personalInfo.name || "Resume"}_${new Date().toLocaleDateString().replace(/\//g, "-")}.pdf`,
+    //   image: { type: "jpeg", quality: 0.98 },
+    //   html2canvas: { scale: 2, useCORS: true },
+    //   jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    // }
+    //
+    // try {
+    //   // Generate and download PDF
+    //   await html2pdf().set(opt).from(element).save()
+    //
+    //   toast("PDF Export Successful", {
+    //     description: "Your resume has been downloaded as a PDF.",
+    //   })
+    // } catch (_error) {
+    //   toast("Export Failed", {
+    //     description: "There was an error exporting your resume. Please try again.",
+    //   })
+    // }
   }
 
   return (
@@ -91,8 +133,8 @@ export default function ResumeBuilder() {
       </div>
       <div className="bg-white rounded-lg shadow-lg p-6 border">
         <h2 className="text-lg font-semibold mb-4">Resume Preview</h2>
-        <div className="bg-white overflow-auto max-h-[800px]">
-          <ResumePreview data={resumeData} />
+        <div className="bg-white">
+          <ResumePreview resumePreviewRef={resumePreviewRef} data={resumeData} />
         </div>
       </div>
     </div>
