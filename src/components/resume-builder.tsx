@@ -69,28 +69,6 @@ export default function ResumeBuilder() {
         })
       }
     }
-
-    // Configure pdf options
-    // const opt = {
-    //   margin: [0, 0, 0, 0],
-    //   filename: `${resumeData.personalInfo.name || "Resume"}_${new Date().toLocaleDateString().replace(/\//g, "-")}.pdf`,
-    //   image: { type: "jpeg", quality: 0.98 },
-    //   html2canvas: { scale: 2, useCORS: true },
-    //   jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    // }
-    //
-    // try {
-    //   // Generate and download PDF
-    //   await html2pdf().set(opt).from(element).save()
-    //
-    //   toast("PDF Export Successful", {
-    //     description: "Your resume has been downloaded as a PDF.",
-    //   })
-    // } catch (_error) {
-    //   toast("Export Failed", {
-    //     description: "There was an error exporting your resume. Please try again.",
-    //   })
-    // }
   }
 
   return (
@@ -131,7 +109,7 @@ export default function ResumeBuilder() {
           <Download className="mr-2 h-4 w-4" /> Export as PDF
         </Button>
       </div>
-      <div className="bg-white rounded-lg shadow-lg p-6 border">
+      <div className="bg-white h-fit rounded-lg shadow-lg p-6 border">
         <h2 className="text-lg font-semibold mb-4">Resume Preview</h2>
         <div className="bg-white">
           <ResumePreview resumePreviewRef={resumePreviewRef} data={resumeData} />

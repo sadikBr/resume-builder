@@ -12,7 +12,7 @@ export default function ResumePreview({ data, resumePreviewRef }: ResumePreviewP
   const { personalInfo, education, experience, skills, projects, languages } = data
 
   return (
-    <div ref={resumePreviewRef} className="font-sans text-sm p-4 w-[595px] h-[842px] mx-auto border border-gray-200 shadow-sm bg-white">
+    <div ref={resumePreviewRef} className="font-sans text-sm p-4 w-[210mm] h-[297mm] mx-auto border border-gray-200 shadow-sm bg-white">
       {/* Header with photo */}
       <div className="flex justify-between items-start mb-6">
         <div className="flex-1">
