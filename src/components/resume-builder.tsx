@@ -58,6 +58,7 @@ export default function ResumeBuilder() {
       }
 
       try {
+        // @ts-ignore
         await html2pdf().set(options).from(element).save()
 
         toast("PDF Exported Successfuly.", {
