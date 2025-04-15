@@ -3,6 +3,8 @@ import { ExternalLink, Mail, Github, Linkedin } from "lucide-react"
 import Image from "next/image"
 import { Ref } from "react"
 
+import ProfileImagePlaceholder from "@/assets/profile.png"
+
 interface ResumePreviewProps {
   resumePreviewRef: Ref<HTMLDivElement>
   data: ResumeData
@@ -59,7 +61,7 @@ export default function ResumePreview({ data, resumePreviewRef }: ResumePreviewP
           <div className="ml-4">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
               <Image
-                src={personalInfo.photoUrl || "/placeholder.svg"}
+                src={ProfileImagePlaceholder}
                 alt="Profile"
                 width={96}
                 height={96}
