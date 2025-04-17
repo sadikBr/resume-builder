@@ -1,28 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import type { PersonalInfo } from "@/types/resume"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { PersonalInfo } from "@/types/resume";
 
 interface PersonalInfoFormProps {
-  data: PersonalInfo
-  updateData: (data: PersonalInfo) => void
+  data: PersonalInfo;
+  updateData: (data: PersonalInfo) => void;
 }
 
-export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormProps) {
-  const [formData, setFormData] = useState<PersonalInfo>(data)
+export default function PersonalInfoForm({
+  data,
+  updateData,
+}: PersonalInfoFormProps) {
+  const [formData, setFormData] = useState<PersonalInfo>(data);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    const updatedData = { ...formData, [name]: value }
-    setFormData(updatedData)
-    updateData(updatedData)
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    const updatedData = { ...formData, [name]: value };
+    setFormData(updatedData);
+    updateData(updatedData);
+  };
 
   return (
     <Card>
@@ -31,7 +36,13 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} />
+              <Input
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Professional Title</Label>
@@ -47,7 +58,7 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
 
           <div className="space-y-2">
             <Label htmlFor="tagline">Tagline</Label>
-            <Input
+            <Textarea
               id="tagline"
               name="tagline"
               placeholder="Dynamic and motivated. I am a junior engineer..."
@@ -56,7 +67,7 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -65,6 +76,16 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
                 type="email"
                 placeholder="john.doe@example.com"
                 value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="linkedin">LinkedIn</Label>
+              <Input
+                id="linkedin"
+                name="linkedin"
+                placeholder="https://linkedin.com/in/johndoe"
+                value={formData.linkedin}
                 onChange={handleChange}
               />
             </div>
@@ -82,35 +103,12 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                placeholder="New York, NY"
-                value={formData.location}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               <Input
                 id="website"
                 name="website"
                 placeholder="https://yourportfolio.com"
                 value={formData.website}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="linkedin">LinkedIn</Label>
-              <Input
-                id="linkedin"
-                name="linkedin"
-                placeholder="https://linkedin.com/in/johndoe"
-                value={formData.linkedin}
                 onChange={handleChange}
               />
             </div>
@@ -136,21 +134,8 @@ export default function PersonalInfoForm({ data, updateData }: PersonalInfoFormP
               onChange={handleChange}
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="summary">Professional Summary</Label>
-            <Textarea
-              id="summary"
-              name="summary"
-              placeholder="A brief summary of your professional background and goals..."
-              rows={4}
-              value={formData.summary}
-              onChange={handleChange}
-            />
-          </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
