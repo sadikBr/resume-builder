@@ -3,8 +3,6 @@ import { ExternalLink, Mail, Github, Linkedin } from "lucide-react";
 import Image from "next/image";
 import { Ref } from "react";
 
-import ProfileImagePlaceholder from "@/assets/profile.png";
-
 interface ResumePreviewProps {
   resumePreviewRef: Ref<HTMLDivElement>;
   data: ResumeData;
@@ -20,10 +18,10 @@ export default function ResumePreview({
   return (
     <div
       ref={resumePreviewRef}
-      className="font-sans text-sm p-4 w-[210mm] h-[297mm] mx-auto border border-gray-200 shadow-sm bg-white"
+      className="font-sans text-sm p-4 w-[210mm] h-[297mm] mx-auto shadow-sm bg-white"
     >
       {/* Header with photo */}
-      <div className="flex justify-between items-start mb-2">
+      <div className="flex justify-between items-start mb-1">
         <div className="flex-1">
           {personalInfo.name && (
             <div className="text-destructive">
@@ -34,15 +32,15 @@ export default function ResumePreview({
             </div>
           )}
           {personalInfo.tagline && (
-            <p className="text-gray-600 mt-1">{personalInfo.tagline}</p>
+            <p className="text-gray-600">{personalInfo.tagline}</p>
           )}
 
           {/* Contact Info */}
-          <div className="mt-3 text-xs text-gray-600 space-y-1">
-            <div className="grid grid-cols-3 gap-4">
+          <div className="my-1 text-xs text-gray-600 space-y-1">
+            <div className="flex items-center gap-4">
               {personalInfo.email && (
                 <div className="flex items-center">
-                  <Mail className="h-3 w-3 mr-2" />
+                  <Mail className="h-3 w-3 mr-1" />
                   <a
                     href={`mailto:${personalInfo.email}`}
                     className="hover:underline"
@@ -53,7 +51,7 @@ export default function ResumePreview({
               )}
               {personalInfo.linkedin && (
                 <div className="flex items-center">
-                  <Linkedin className="h-3 w-3 mr-2" />
+                  <Linkedin className="h-3 w-3 mr-1" />
                   <a
                     href={personalInfo.linkedin}
                     target="_blank"
@@ -69,7 +67,7 @@ export default function ResumePreview({
               )}
               {personalInfo.phone && (
                 <div className="flex items-center">
-                  <Mail className="h-3 w-3 mr-2" />
+                  <Mail className="h-3 w-3 mr-1" />
                   <a
                     href={`tele:${personalInfo.phone}`}
                     className="hover:underline"
@@ -80,10 +78,10 @@ export default function ResumePreview({
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="flex items-center gap-4">
               {personalInfo.website && (
                 <div className="flex items-center">
-                  <ExternalLink className="h-3 w-3 mr-2" />
+                  <ExternalLink className="h-3 w-3 mr-1" />
                   <a
                     href={personalInfo.website}
                     target="_blank"
@@ -96,7 +94,7 @@ export default function ResumePreview({
               )}
               {personalInfo.github && (
                 <div className="flex items-center">
-                  <Github className="h-3 w-3 mr-2" />
+                  <Github className="h-3 w-3 mr-1" />
                   <a
                     href={personalInfo.github}
                     target="_blank"
@@ -115,9 +113,9 @@ export default function ResumePreview({
         </div>
         {personalInfo.photoUrl && (
           <div className="ml-4">
-            <div className="w-34 aspect-square rounded-full overflow-hidden">
+            <div className="w-30 aspect-square rounded-full overflow-hidden">
               <Image
-                src={ProfileImagePlaceholder}
+                src={personalInfo.photoUrl}
                 alt="Profile"
                 width={136}
                 height={136}
@@ -130,7 +128,7 @@ export default function ResumePreview({
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Left Column */}
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-2">
           {/* Education */}
           {education.length > 0 && (
             <div>
@@ -216,7 +214,7 @@ export default function ResumePreview({
                         {project.technologies.split(",").map((tech, i) => (
                           <span
                             key={i}
-                            className="bg-white border border-blue-950 font-bold text-blue-950 px-2 py-0.5 rounded text-xs"
+                            className="bg-white border border-blue-950 font-semibold text-blue-950 px-2 py-0.5 rounded text-xs"
                           >
                             {tech.trim()}
                           </span>
@@ -251,7 +249,7 @@ export default function ResumePreview({
                       {skill.items.split(",").map((item, i) => (
                         <span
                           key={i}
-                          className="bg-white border border-blue-950 font-bold text-blue-950 px-2 py-0.5 rounded text-xs"
+                          className="bg-white border border-blue-950 font-semibold text-blue-950 px-2 py-0.5 rounded text-xs"
                         >
                           {item.trim()}
                         </span>

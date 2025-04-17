@@ -14,6 +14,11 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import type { ResumeData } from "@/types/resume";
 
+import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
+
+import ProfileImagePlaceholder from '@/assets/profile.png';
+
 export default function ResumeBuilder() {
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
@@ -23,10 +28,10 @@ export default function ResumeBuilder() {
       title: "Software Engineer",
       tagline:
         "Dynamic and motivated, passionate about software development and problem-solving, creating innovative solutions, and contributing to open-source projects.",
-      website: "www.brahimsadik.com",
-      linkedin: "linkedin.com/in/brahim-sadik",
-      github: "github.com/sadikBr",
-      photoUrl: "/placeholder.svg?height=96&width=96",
+      website: "https://www.brahimsadik.com",
+      linkedin: "https://www.linkedin.com/in/brahim-sadik",
+      github: "https://www.github.com/sadikBr",
+      photoUrl: ProfileImagePlaceholder.src,
     },
     education: [
       {
@@ -162,28 +167,42 @@ export default function ResumeBuilder() {
   const handleExportPDF = async () => {
     const element = resumePreviewRef.current;
 
-    if (element) {
-      const options = {
-        margin: [0, 0, 0, 0],
-        filename: "resume.pdf",
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 4, useCORS: true },
-        jdPDF: { unit: "px", format: "a4", orientation: "portrait" },
-      };
+    if (!element) return;
 
-      try {
-        // @ts-ignore
-        await html2pdf().set(options).from(element).save();
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 4,
+        logging: false,
+        useCORS: true,
+      });
 
-        toast("PDF Exported Successfuly.", {
-          description: "Your pdf file has been generated successfuly.",
-        });
-      } catch (_err) {
-        toast("Export Failed", {
-          description:
-            "There was an error while generating your pdf file. Please try again later.",
-        });
-      }
+      const imageData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: "a4",
+        putOnlyUsedFonts: true,
+      });
+
+      // Calculate the PDF dimensions
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Calculate the image dimensions to fit the PDF
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+
+      pdf.addImage(imageData, 'PNG', 0, 0, imgWidth * ratio, imgHeight * ratio);
+      pdf.save('resume.pdf');
+
+      toast("PDF Exported Successfuly.", {
+        description: "Your pdf file has been generated successfuly.",
+      });
+    } catch (err) {
+      toast("Export Failed", {
+        description: (err as Error).message,
+      });
     }
   };
 
