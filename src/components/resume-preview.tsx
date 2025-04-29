@@ -1,5 +1,5 @@
 import type { ResumeData } from "@/types/resume";
-import { ExternalLink, Mail, Github, Linkedin } from "lucide-react";
+import { ExternalLink, Mail, Github, Linkedin, Phone } from "lucide-react";
 import Image from "next/image";
 import { Ref } from "react";
 
@@ -67,12 +67,12 @@ export default function ResumePreview({
               )}
               {personalInfo.phone && (
                 <div className="flex items-center">
-                  <Mail className="h-3 w-3 mr-1" />
+                  <Phone className="h-3 w-3 mr-1" />
                   <a
                     href={`tele:${personalInfo.phone}`}
                     className="hover:underline"
                   >
-                    {personalInfo.email}
+                    {personalInfo.phone}
                   </a>
                 </div>
               )}
