@@ -19,7 +19,7 @@ import {
   type Ref,
 } from "react";
 import { resumeTranslations, type ResumeLanguage } from "@/lib/i18n";
-import { getAccent } from "@/lib/layout";
+import { fontSizeVariables, getAccent } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 interface ResumePreviewProps {
@@ -75,7 +75,7 @@ function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <h2
       className={cn(
-        "mb-2.5 flex items-center gap-2.5 text-[11.5px] font-bold uppercase leading-none tracking-[0.16em]",
+        "mb-2.5 flex items-center gap-2.5 text-[length:var(--fs-sectionTitle)] font-bold uppercase leading-none tracking-[0.16em]",
         accent,
       )}
     >
@@ -98,7 +98,7 @@ function TagList({
         {items.map((item, i) => (
           <span
             key={i}
-            className="inline-block rounded border-solid border-[var(--accent-border)] bg-white px-1.5 py-px text-[10.5px] font-medium leading-4 text-slate-800"
+            className="inline-block rounded border-solid border-[var(--accent-border)] bg-white px-1.5 py-px text-[length:var(--fs-tags)] font-medium leading-[1.5] text-slate-800"
             style={{ borderWidth: HAIRLINE }}
           >
             {item}
@@ -108,7 +108,7 @@ function TagList({
     );
   }
   return (
-    <p className="text-[11.5px] leading-[1.5] text-slate-700">
+    <p className="text-[length:calc(var(--fs-tags)+1px)] leading-[1.5] text-slate-700">
       {items.map((item, i) => (
         <span key={i}>
           {/* Real spaces around the dot give the line somewhere to wrap. */}
@@ -122,7 +122,7 @@ function TagList({
 
 function BulletList({ items }: { items: string[] }) {
   return (
-    <ul className="mt-1 space-y-0.5 text-[11.5px] leading-[1.45] text-slate-700">
+    <ul className="mt-1 space-y-0.5 text-[length:var(--fs-body)] leading-[1.45] text-slate-700">
       {items.map((item, i) => (
         <li key={i} className="flex gap-2">
           <span className="mt-[0.55em] h-[3px] w-[3px] shrink-0 rounded-full bg-[var(--accent)]" />
@@ -154,7 +154,7 @@ function EntryHeader({
   narrow: boolean;
 }) {
   const heading = (
-    <h3 className="text-[13px] font-semibold leading-snug text-slate-900">
+    <h3 className="text-[length:var(--fs-entryTitle)] font-semibold leading-snug text-slate-900">
       {title}
       {titleExtra && (
         <span className="font-normal text-slate-500">
@@ -171,12 +171,12 @@ function EntryHeader({
       <div>
         {heading}
         {organisation && (
-          <div className={cn("text-[11.5px] font-medium leading-snug", accent)}>
+          <div className={cn("text-[length:var(--fs-organisation)] font-medium leading-snug", accent)}>
             {organisation}
           </div>
         )}
         {meta && (
-          <div className="text-[11px] tabular-nums leading-snug text-slate-500">
+          <div className="text-[length:var(--fs-meta)] tabular-nums leading-snug text-slate-500">
             {meta}
           </div>
         )}
@@ -189,13 +189,13 @@ function EntryHeader({
       <div className="flex items-baseline justify-between gap-3">
         {heading}
         {date && (
-          <span className="shrink-0 text-[11px] tabular-nums text-slate-500">
+          <span className="shrink-0 text-[length:var(--fs-meta)] tabular-nums text-slate-500">
             {date}
           </span>
         )}
       </div>
       {(organisation || location) && (
-        <div className="text-[11.5px] leading-snug">
+        <div className="text-[length:var(--fs-organisation)] leading-snug">
           {organisation && (
             <span className={cn("font-medium", accent)}>{organisation}</span>
           )}
@@ -241,7 +241,7 @@ function educationEntries({ data, narrow }: SectionContext) {
         narrow={narrow}
       />
       {edu.description && (
-        <p className="mt-1 text-[11.5px] leading-[1.45] text-slate-700">
+        <p className="mt-1 text-[length:var(--fs-body)] leading-[1.45] text-slate-700">
           {edu.description}
         </p>
       )}
@@ -273,14 +273,14 @@ function projectEntries({ data, narrow, skillStyle }: SectionContext) {
         href={project.url}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn("truncate text-[11px] hover:underline", accent)}
+        className={cn("truncate text-[length:var(--fs-meta)] hover:underline", accent)}
       >
         {project.url.replace(/^https?:\/\/(www\.)?/, "")}
       </a>
     );
     const technologies = splitList(project.technologies, ",");
     const title = (
-      <h3 className="text-[13px] font-semibold leading-snug text-slate-900">
+      <h3 className="text-[length:var(--fs-entryTitle)] font-semibold leading-snug text-slate-900">
         {project.name}
       </h3>
     );
@@ -298,7 +298,7 @@ function projectEntries({ data, narrow, skillStyle }: SectionContext) {
           </div>
         )}
         {project.description && (
-          <p className="mt-0.5 text-[11.5px] leading-[1.45] text-slate-700">
+          <p className="mt-0.5 text-[length:var(--fs-body)] leading-[1.45] text-slate-700">
             {project.description}
           </p>
         )}
@@ -316,7 +316,7 @@ function skillEntries({ data, narrow, skillStyle }: SectionContext) {
   return data.skills.map((skill, i) =>
     narrow ? (
       <div key={i}>
-        <div className="mb-0.5 text-[11.5px] font-semibold leading-snug text-slate-900">
+        <div className="mb-0.5 text-[length:var(--fs-skillCategory)] font-semibold leading-snug text-slate-900">
           {skill.category}
         </div>
         <TagList items={splitList(skill.items, ",")} style={skillStyle} />
@@ -324,7 +324,7 @@ function skillEntries({ data, narrow, skillStyle }: SectionContext) {
     ) : (
       // Wide columns: category label on the left, skills on the right.
       <div key={i} className="grid grid-cols-[minmax(0,30%)_minmax(0,1fr)] gap-x-4">
-        <div className="text-[11.5px] font-semibold leading-[1.5] text-slate-900">
+        <div className="text-[length:var(--fs-skillCategory)] font-semibold leading-[1.5] text-slate-900">
           {skill.category}
         </div>
         <TagList items={splitList(skill.items, ",")} style={skillStyle} />
@@ -341,7 +341,7 @@ function languageEntries({ data, t, narrow }: SectionContext) {
       className={cn(narrow ? "space-y-1" : "grid grid-cols-3 gap-x-4 gap-y-1.5")}
     >
       {data.languages.map((language, i) => (
-        <div key={i} className="flex items-baseline justify-between gap-2 text-[11.5px]">
+        <div key={i} className="flex items-baseline justify-between gap-2 text-[length:var(--fs-languages)]">
           <span className="font-semibold text-slate-900">{language.name}</span>
           <span className="text-slate-500">
             {t.proficiency[language.proficiency] ?? language.proficiency}
@@ -449,20 +449,20 @@ function ContactItem({
 
 function Header({ data }: { data: ResumeData }) {
   const { personalInfo } = data;
-  const icon = "h-3 w-3";
+  const icon = "size-[1.09em]";
 
   return (
     <header className="flex items-center gap-6 px-9 pt-8 pb-6">
       <div className="min-w-0 flex-1">
         {personalInfo.name && (
-          <h1 className="text-[30px] font-bold leading-none tracking-tight text-slate-900">
+          <h1 className="text-[length:var(--fs-name)] font-bold leading-none tracking-tight text-slate-900">
             {personalInfo.name}
           </h1>
         )}
         {personalInfo.title && (
           <p
             className={cn(
-              "mt-2 text-[12.5px] font-semibold uppercase tracking-[0.16em]",
+              "mt-2 text-[length:var(--fs-title)] font-semibold uppercase tracking-[0.16em]",
               accent,
             )}
           >
@@ -470,12 +470,12 @@ function Header({ data }: { data: ResumeData }) {
           </p>
         )}
         {personalInfo.tagline && (
-          <p className="mt-3 max-w-[95%] text-[12px] leading-relaxed text-slate-600">
+          <p className="mt-3 max-w-[95%] text-[length:var(--fs-tagline)] leading-relaxed text-slate-600">
             {personalInfo.tagline}
           </p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-slate-600">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[length:var(--fs-contact)] text-slate-600">
           {personalInfo.email && (
             <ContactItem icon={<Mail className={icon} />} href={`mailto:${personalInfo.email}`}>
               {personalInfo.email}
@@ -631,6 +631,7 @@ export default function ResumePreview({
     "--accent-soft": palette.soft,
     "--accent-border": palette.border,
     "--accent-tint": palette.tint,
+    ...fontSizeVariables(layout.fontSizes),
   } as CSSProperties;
 
   // Page edge gets the full margin, the gutter between columns a smaller one.

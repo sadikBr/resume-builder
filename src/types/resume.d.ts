@@ -65,6 +65,21 @@ export interface LayoutSection {
   visible: boolean;
 }
 
+/** Every piece of text on the resume whose size can be customised. */
+export type TextRole =
+  | "name"
+  | "title"
+  | "tagline"
+  | "contact"
+  | "sectionTitle"
+  | "entryTitle"
+  | "organisation"
+  | "meta"
+  | "body"
+  | "skillCategory"
+  | "tags"
+  | "languages";
+
 export interface ResumeLayout {
   /** 1 = everything stacked full-width, 2 = main column + sidebar. */
   columns: 1 | 2;
@@ -74,6 +89,8 @@ export interface ResumeLayout {
   sidebarStyle: "plain" | "tinted";
   accent: string;
   skillStyle: "chips" | "inline";
+  /** Font size of each text role, in CSS px at A4 size. */
+  fontSizes: Record<TextRole, number>;
   /** Global section order; in two-column mode each column keeps the relative order. */
   sections: LayoutSection[];
 }

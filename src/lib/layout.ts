@@ -1,4 +1,4 @@
-import type { ColumnId, LayoutSection, ResumeLayout } from "@/types/resume";
+import type { ColumnId, LayoutSection, ResumeLayout, TextRole } from "@/types/resume";
 
 export const SIDEBAR_WIDTH_MIN = 25;
 export const SIDEBAR_WIDTH_MAX = 50;
@@ -64,6 +64,75 @@ export const getAccent = (accent: string): Palette =>
     ? paletteFromColor(accent)
     : ACCENTS[(accent in ACCENTS ? accent : "navy") as AccentId];
 
+/**
+ * Text roles, grouped the way the layout form shows them. `min`/`max` keep
+ * every size inside a range that still prints legibly and fits the page.
+ */
+export const TEXT_GROUPS: { id: "header" | "entries" | "lists"; roles: TextRole[] }[] = [
+  { id: "header", roles: ["name", "title", "tagline", "contact"] },
+  { id: "entries", roles: ["sectionTitle", "entryTitle", "organisation", "meta", "body"] },
+  { id: "lists", roles: ["skillCategory", "tags", "languages"] },
+];
+
+export const FONT_SIZE_STEP = 0.5;
+
+export const FONT_SIZE_LIMITS: Record<TextRole, { min: number; max: number }> = {
+  name: { min: 18, max: 48 },
+  title: { min: 8, max: 20 },
+  tagline: { min: 8, max: 18 },
+  contact: { min: 8, max: 16 },
+  sectionTitle: { min: 8, max: 20 },
+  entryTitle: { min: 9, max: 22 },
+  organisation: { min: 8, max: 18 },
+  meta: { min: 7, max: 16 },
+  body: { min: 8, max: 18 },
+  skillCategory: { min: 8, max: 18 },
+  tags: { min: 7, max: 16 },
+  languages: { min: 8, max: 18 },
+};
+
+export const defaultFontSizes: Record<TextRole, number> = {
+  name: 30,
+  title: 12.5,
+  tagline: 12,
+  contact: 11,
+  sectionTitle: 11.5,
+  entryTitle: 13,
+  organisation: 11.5,
+  meta: 11,
+  body: 11.5,
+  skillCategory: 11.5,
+  tags: 10.5,
+  languages: 11.5,
+};
+
+/** Rounds to the slider step and keeps the size inside the role's limits. */
+export function clampFontSize(role: TextRole, size: number) {
+  const { min, max } = FONT_SIZE_LIMITS[role];
+  const stepped = Math.round(size / FONT_SIZE_STEP) * FONT_SIZE_STEP;
+  return Math.min(max, Math.max(min, stepped));
+}
+
+/** Grows or shrinks every size by the same factor, so the hierarchy is kept. */
+export function scaleFontSizes(sizes: Record<TextRole, number>, factor: number) {
+  const out = { ...sizes };
+  for (const role of Object.keys(out) as TextRole[]) {
+    const scaled = clampFontSize(role, sizes[role] * factor);
+    // Small sizes would round back to themselves; always move at least one step.
+    out[role] =
+      scaled !== sizes[role]
+        ? scaled
+        : clampFontSize(role, sizes[role] + (factor > 1 ? FONT_SIZE_STEP : -FONT_SIZE_STEP));
+  }
+  return out;
+}
+
+/** CSS variables the preview reads its font sizes from (`--fs-<role>`). */
+export const fontSizeVariables = (sizes: Record<TextRole, number>) =>
+  Object.fromEntries(
+    (Object.keys(sizes) as TextRole[]).map((role) => [`--fs-${role}`, `${sizes[role]}px`]),
+  );
+
 export const defaultLayout: ResumeLayout = {
   columns: 2,
   sidebarPosition: "right",
@@ -71,6 +140,7 @@ export const defaultLayout: ResumeLayout = {
   sidebarStyle: "tinted",
   accent: "navy",
   skillStyle: "chips",
+  fontSizes: defaultFontSizes,
   sections: [
     { id: "experience", column: "main", visible: true },
     { id: "education", column: "main", visible: true },
@@ -108,6 +178,7 @@ export const LAYOUT_PRESETS: { id: PresetId; layout: ResumeLayout }[] = [
       sidebarStyle: "tinted",
       accent: "teal",
       skillStyle: "chips",
+      fontSizes: defaultFontSizes,
       sections: [
         { id: "skills", column: "side", visible: true },
         { id: "languages", column: "side", visible: true },
@@ -126,6 +197,7 @@ export const LAYOUT_PRESETS: { id: PresetId; layout: ResumeLayout }[] = [
       sidebarStyle: "plain",
       accent: "graphite",
       skillStyle: "inline",
+      fontSizes: defaultFontSizes,
       sections: [
         { id: "experience", column: "main", visible: true },
         { id: "projects", column: "main", visible: true },
@@ -137,16 +209,17 @@ export const LAYOUT_PRESETS: { id: PresetId; layout: ResumeLayout }[] = [
   },
 ];
 
-/** Applies a preset but keeps the user's choice of hidden sections. */
+/** Applies a preset but keeps the user's hidden sections and text sizes. */
 export function applyPreset(current: ResumeLayout, preset: ResumeLayout): ResumeLayout {
   const visible = new Map(current.sections.map((s) => [s.id, s.visible]));
   return {
     ...preset,
+    fontSizes: current.fontSizes,
     sections: preset.sections.map((s) => ({ ...s, visible: visible.get(s.id) ?? true })),
   };
 }
 
-/** True when the layout matches the preset (section visibility aside). */
+/** True when the layout matches the preset (section visibility and text sizes aside). */
 export function matchesPreset(layout: ResumeLayout, preset: ResumeLayout): boolean {
   const key = (l: ResumeLayout) =>
     JSON.stringify([

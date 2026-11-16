@@ -24,27 +24,35 @@ import {
   Check,
   Columns2,
   Eye,
+  Minus,
   EyeOff,
   GripVertical,
   PanelLeft,
   PanelRight,
   Plus,
   RectangleVertical,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/language-provider";
 import {
   ACCENTS,
+  FONT_SIZE_LIMITS,
+  FONT_SIZE_STEP,
   LAYOUT_PRESETS,
+  TEXT_GROUPS,
   SIDEBAR_WIDTH_MAX,
   SIDEBAR_WIDTH_MIN,
   applyPreset,
+  clampFontSize,
+  defaultFontSizes,
   foregroundFor,
   getAccent,
   isCustomAccent,
   matchesPreset,
   reorderWithinColumn,
+  scaleFontSizes,
 } from "@/lib/layout";
 import type {
   ColumnId,
@@ -52,6 +60,7 @@ import type {
   ResumeData,
   ResumeLayout,
   SectionId,
+  TextRole,
 } from "@/types/resume";
 
 interface LayoutFormProps {
@@ -283,7 +292,180 @@ export default function LayoutForm({ layout, updateLayout, data }: LayoutFormPro
           </Field>
         </div>
       </Panel>
+
+      <TextSizesPanel
+        sizes={layout.fontSizes}
+        onChange={(fn) => updateLayout((prev) => ({ ...prev, fontSizes: fn(prev.fontSizes) }))}
+      />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+type FontSizes = ResumeLayout["fontSizes"];
+
+// Each click on "smaller"/"larger" scales every size by this much.
+const SCALE_STEP = 1.05;
+
+function TextSizesPanel({
+  sizes,
+  onChange,
+}: {
+  sizes: FontSizes;
+  onChange: (fn: (sizes: FontSizes) => FontSizes) => void;
+}) {
+  const t = useLanguage().t.layout;
+  const roles = Object.keys(defaultFontSizes) as TextRole[];
+  const allDefault = roles.every((role) => sizes[role] === defaultFontSizes[role]);
+  const atMin = roles.every((role) => sizes[role] <= FONT_SIZE_LIMITS[role].min);
+  const atMax = roles.every((role) => sizes[role] >= FONT_SIZE_LIMITS[role].max);
+  const setSize = (role: TextRole, value: number) =>
+    onChange((prev) => ({ ...prev, [role]: clampFontSize(role, value) }));
+
+  return (
+    <Panel
+      title={t.textSizes}
+      description={t.textSizesDescription}
+      aside={
+        <div className="flex items-center gap-1">
+          <div className="inline-flex rounded-lg border bg-muted p-0.5">
+            <button
+              type="button"
+              onClick={() => onChange((prev) => scaleFontSizes(prev, 1 / SCALE_STEP))}
+              disabled={atMin}
+              aria-label={t.smallerAll}
+              title={t.smallerAll}
+              className="flex h-7 items-center rounded-md px-2 text-[11px] font-semibold text-muted-foreground outline-none transition-colors hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+            >
+              A<Minus className="ml-px size-2.5" strokeWidth={3} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange((prev) => scaleFontSizes(prev, SCALE_STEP))}
+              disabled={atMax}
+              aria-label={t.largerAll}
+              title={t.largerAll}
+              className="flex h-7 items-center rounded-md px-2 text-sm font-semibold text-muted-foreground outline-none transition-colors hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+            >
+              A<Plus className="ml-px size-3" strokeWidth={3} />
+            </button>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1.5 px-2 text-xs text-muted-foreground"
+            onClick={() => onChange(() => defaultFontSizes)}
+            disabled={allDefault}
+          >
+            <RotateCcw className="size-3.5" />
+            {t.resetAll}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        {TEXT_GROUPS.map((group) => (
+          <div key={group.id}>
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {t.textGroups[group.id]}
+            </div>
+            <ul className="divide-y rounded-lg border">
+              {group.roles.map((role) => (
+                <FontSizeRow
+                  key={role}
+                  role={role}
+                  value={sizes[role]}
+                  onChange={(value) => setSize(role, value)}
+                />
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function FontSizeRow({
+  role,
+  value,
+  onChange,
+}: {
+  role: TextRole;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const t = useLanguage().t.layout;
+  const { label, hint } = t.textRoles[role];
+  const { min, max } = FONT_SIZE_LIMITS[role];
+  const fallback = defaultFontSizes[role];
+  const changed = value !== fallback;
+  const stepButton =
+    "flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-30 [&_svg]:size-3.5";
+
+  return (
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
+      <div className="min-w-0 flex-1 sm:w-44 sm:flex-none">
+        <div className="flex items-center gap-1.5 truncate text-sm font-medium">
+          {label}
+          {changed && <span className="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden />}
+        </div>
+        <div className="truncate text-[11px] text-muted-foreground">{hint}</div>
+      </div>
+
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={FONT_SIZE_STEP}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        aria-label={label}
+        aria-valuetext={`${value} px`}
+        className="order-3 w-full accent-primary sm:order-2 sm:w-auto sm:min-w-0 sm:flex-1"
+      />
+
+      <div className="order-2 flex shrink-0 items-center sm:order-3">
+        <button
+          type="button"
+          className={stepButton}
+          onClick={() => onChange(value - FONT_SIZE_STEP)}
+          disabled={value <= min}
+          aria-label={t.decrease(label)}
+        >
+          <Minus />
+        </button>
+        <span
+          className={cn(
+            "w-14 text-center text-xs tabular-nums",
+            changed ? "font-semibold text-foreground" : "text-muted-foreground",
+          )}
+        >
+          {value} px
+        </span>
+        <button
+          type="button"
+          className={stepButton}
+          onClick={() => onChange(value + FONT_SIZE_STEP)}
+          disabled={value >= max}
+          aria-label={t.increase(label)}
+        >
+          <Plus />
+        </button>
+        {/* Always takes its space so the columns line up whether or not a row was changed. */}
+        <button
+          type="button"
+          className={cn(stepButton, "ml-0.5", !changed && "invisible")}
+          onClick={() => onChange(fallback)}
+          aria-label={t.resetSize(label)}
+          title={`${t.resetSize(label)} (${fallback} px)`}
+          tabIndex={changed ? 0 : -1}
+        >
+          <RotateCcw />
+        </button>
+      </div>
+    </li>
   );
 }
 
@@ -350,18 +532,25 @@ function LayoutThumbnail({ layout }: { layout: ResumeLayout }) {
 function Panel({
   title,
   description,
+  aside,
   children,
 }: {
   title: string;
   description?: string;
+  aside?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="rounded-xl border bg-card p-4 text-card-foreground shadow-xs sm:p-5">
-      <h3 className="text-sm font-semibold">{title}</h3>
-      {description && (
-        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-      )}
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold">{title}</h3>
+          {description && (
+            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {aside}
+      </div>
       <div className="mt-4">{children}</div>
     </section>
   );

@@ -10,9 +10,17 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { ACCENTS, SIDEBAR_WIDTH_MAX, SIDEBAR_WIDTH_MIN, defaultLayout, isCustomAccent } from "@/lib/layout";
+import {
+  ACCENTS,
+  SIDEBAR_WIDTH_MAX,
+  SIDEBAR_WIDTH_MIN,
+  clampFontSize,
+  defaultFontSizes,
+  defaultLayout,
+  isCustomAccent,
+} from "@/lib/layout";
 import { PLACEHOLDER_PHOTO, sampleResumeData } from "@/lib/sample-resume";
-import type { LayoutSection, ResumeData, ResumeLayout, SectionId } from "@/types/resume";
+import type { LayoutSection, ResumeData, ResumeLayout, SectionId, TextRole } from "@/types/resume";
 
 const STORAGE_KEY = "resume-builder:v1";
 const SAVE_DELAY_MS = 300;
@@ -205,6 +213,14 @@ function normalizeLayout(value: unknown): ResumeLayout {
     if (!sections.some((s) => s.id === section.id)) sections.push(section);
   }
 
+  // Saves from before text sizes existed get the defaults; unknown roles are dropped.
+  const storedSizes = isObject(l.fontSizes) ? l.fontSizes : {};
+  const fontSizes = { ...defaultFontSizes };
+  for (const role of Object.keys(fontSizes) as TextRole[]) {
+    const v = storedSizes[role];
+    if (typeof v === "number" && Number.isFinite(v)) fontSizes[role] = clampFontSize(role, v);
+  }
+
   const width = typeof l.sidebarWidth === "number" ? l.sidebarWidth : defaultLayout.sidebarWidth;
   return {
     columns: pick(l.columns, [1, 2] as const, defaultLayout.columns),
@@ -216,6 +232,7 @@ function normalizeLayout(value: unknown): ResumeLayout {
         ? l.accent
         : defaultLayout.accent,
     skillStyle: pick(l.skillStyle, ["chips", "inline"] as const, defaultLayout.skillStyle),
+    fontSizes,
     sections,
   };
 }
