@@ -57,16 +57,14 @@ export default function SkillsForm({ data, updateData }: SkillsFormProps) {
     <div className="space-y-4">
       {skillsList.map((skill, index) => (
         <Card key={index} className="relative">
-          {skillsList.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => handleRemoveSkill(index)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => handleRemoveSkill(index)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <CardContent className="pt-6">
             <div className="grid gap-4">
               <div className="space-y-2">

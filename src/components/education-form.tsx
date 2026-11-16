@@ -67,16 +67,14 @@ export default function EducationForm({ data, updateData }: EducationFormProps) 
     <div className="space-y-4">
       {educationList.map((education, index) => (
         <Card key={index} className="relative">
-          {educationList.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => handleRemoveEducation(index)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => handleRemoveEducation(index)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <CardContent className="pt-6">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">

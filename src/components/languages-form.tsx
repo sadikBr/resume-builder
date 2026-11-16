@@ -64,16 +64,14 @@ export default function LanguagesForm({ data, updateData }: LanguagesFormProps) 
     <div className="space-y-4">
       {languagesList.map((language, index) => (
         <Card key={index} className="relative">
-          {languagesList.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => handleRemoveLanguage(index)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => handleRemoveLanguage(index)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <CardContent className="pt-6">
             <div className="grid gap-4">
               <div className="space-y-2">
