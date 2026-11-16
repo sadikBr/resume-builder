@@ -2,16 +2,20 @@ import type { ResumeData } from "@/types/resume";
 import { ExternalLink, Mail, Github, Linkedin, Phone } from "lucide-react";
 import Image from "next/image";
 import { Ref } from "react";
+import { resumeTranslations, type ResumeLanguage } from "@/lib/i18n";
 
 interface ResumePreviewProps {
   resumePreviewRef: Ref<HTMLDivElement>;
   data: ResumeData;
+  language: ResumeLanguage;
 }
 
 export default function ResumePreview({
   data,
   resumePreviewRef,
+  language,
 }: ResumePreviewProps) {
+  const t = resumeTranslations[language];
   const { personalInfo, education, experience, skills, projects, languages } =
     data;
 
@@ -133,7 +137,7 @@ export default function ResumePreview({
           {education.length > 0 && (
             <div>
               <h2 className="text-lg font-bold border-b border-gray-400 pb-1 mb-2 uppercase">
-                Education
+                {t.education}
               </h2>
               <div className="space-y-2">
                 {education.map((edu, index) => (
@@ -160,7 +164,7 @@ export default function ResumePreview({
           {experience.length > 0 && (
             <div>
               <h2 className="text-lg font-bold border-b border-gray-400 pb-1 mb-2 uppercase">
-                Professional Experiences
+                {t.experience}
               </h2>
               <div className="space-y-2">
                 {experience.map((exp, index) => (
@@ -188,7 +192,7 @@ export default function ResumePreview({
           {projects.length > 0 && (
             <div>
               <h2 className="text-lg font-bold border-b border-gray-400 pb-1 mb-2 uppercase">
-                Projects
+                {t.projects}
               </h2>
               <div className="space-y-1">
                 {projects.map((project, index) => (
@@ -237,7 +241,7 @@ export default function ResumePreview({
           {skills.length > 0 && (
             <div>
               <h2 className="text-lg font-bold border-b border-gray-400 pb-1 mb-3 uppercase">
-                Skills
+                {t.skills}
               </h2>
               <div className="space-y-3">
                 {skills.map((skill, index) => (
@@ -265,7 +269,7 @@ export default function ResumePreview({
           {languages.length > 0 && (
             <div>
               <h2 className="text-lg font-bold border-b border-gray-400 pb-1 mb-3 uppercase">
-                Languages
+                {t.languages}
               </h2>
               <div className="space-y-2">
                 {languages.map((language, index) => (
@@ -275,7 +279,7 @@ export default function ResumePreview({
                   >
                     <div className="text-sm">• {language.name}</div>
                     <div className="text-xs text-gray-600">
-                      ({language.proficiency})
+                      ({t.proficiency[language.proficiency] ?? language.proficiency})
                     </div>
                   </div>
                 ))}

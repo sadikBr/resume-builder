@@ -13,6 +13,7 @@ import ResumePreview from "@/components/resume-preview";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import type { ResumeData } from "@/types/resume";
+import type { ResumeLanguage } from "@/lib/i18n";
 
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
@@ -155,6 +156,8 @@ export default function ResumeBuilder() {
     languages: [],
   });
 
+  const [language, setLanguage] = useState<ResumeLanguage>("en");
+
   const resumePreviewRef = useRef<HTMLDivElement>(null);
 
   const updateResumeData = (section: keyof ResumeData, data: any) => {
@@ -260,11 +263,30 @@ export default function ResumeBuilder() {
         </Button>
       </div>
       <div className="bg-white h-fit rounded-lg shadow-lg p-6 border">
-        <h2 className="text-lg font-semibold mb-4">Resume Preview</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Resume Preview</h2>
+          <div className="flex gap-1" role="group" aria-label="Resume language">
+            <Button
+              size="sm"
+              variant={language === "en" ? "default" : "outline"}
+              onClick={() => setLanguage("en")}
+            >
+              English
+            </Button>
+            <Button
+              size="sm"
+              variant={language === "fr" ? "default" : "outline"}
+              onClick={() => setLanguage("fr")}
+            >
+              Français
+            </Button>
+          </div>
+        </div>
         <div className="bg-white">
           <ResumePreview
             resumePreviewRef={resumePreviewRef}
             data={resumeData}
+            language={language}
           />
         </div>
       </div>
