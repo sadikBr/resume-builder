@@ -1,129 +1,66 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import FormField from "@/components/form-field"
+import SortableEntryList from "@/components/sortable-entry-list"
+import TagInput from "@/components/tag-input"
 import type { Project } from "@/types/resume"
-import { Plus, Trash2 } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 interface ProjectsFormProps {
   data: Project[]
   updateData: (data: Project[]) => void
 }
 
+const emptyProject = (): Project => ({ name: "", url: "", description: "", technologies: "" })
+
 export default function ProjectsForm({ data, updateData }: ProjectsFormProps) {
-  const [projectsList, setProjectsList] = useState<Project[]>(
-    data.length
-      ? data
-      : [
-        {
-          name: "",
-          url: "",
-          description: "",
-          technologies: "",
-        },
-      ],
-  )
-
-  const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    const list = [...projectsList]
-    list[index] = { ...list[index], [name]: value }
-    setProjectsList(list)
-    updateData(list)
-  }
-
-  const handleAddProject = () => {
-    setProjectsList([
-      ...projectsList,
-      {
-        name: "",
-        url: "",
-        description: "",
-        technologies: "",
-      },
-    ])
-  }
-
-  const handleRemoveProject = (index: number) => {
-    const list = [...projectsList]
-    list.splice(index, 1)
-    setProjectsList(list)
-    updateData(list)
-  }
-
+  const { t: ui } = useLanguage()
+  const t = ui.projects
+  const c = ui.common
   return (
-    <div className="space-y-4">
-      {projectsList.map((project, index) => (
-        <Card key={index} className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={() => handleRemoveProject(index)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <CardContent className="pt-6">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor={`name-${index}`}>Project Name</Label>
-                <Input
-                  id={`name-${index}`}
-                  name="name"
-                  placeholder="My Awesome Project"
-                  value={project.name}
-                  onChange={(e) => handleChange(index, e)}
-                />
-              </div>
+    <SortableEntryList
+      data={data}
+      updateData={updateData}
+      fallback={[emptyProject()]}
+      createEmpty={emptyProject}
+      addLabel={t.add}
+      emptyTitle={t.empty}
+      getTitle={(project) => project.name}
+      getSubtitle={(project) => project.technologies || project.url}
+      renderFields={(project, { id, handleChange, setField }) => (
+        <div className="grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField id={`${id}-name`} label={t.name}>
+              <Input id={`${id}-name`} name="name" placeholder={t.namePlaceholder} value={project.name} onChange={handleChange} />
+            </FormField>
+            <FormField id={`${id}-url`} label={t.url}>
+              <Input id={`${id}-url`} name="url" placeholder="https://github.com/username/project" value={project.url} onChange={handleChange} />
+            </FormField>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor={`url-${index}`}>Project URL</Label>
-                <Input
-                  id={`url-${index}`}
-                  name="url"
-                  placeholder="https://github.com/username/project"
-                  value={project.url}
-                  onChange={(e) => handleChange(index, e)}
-                />
-              </div>
+          <FormField id={`${id}-technologies`} label={t.technologies} hint={ui.inputs.tagHint}>
+            <TagInput
+              id={`${id}-technologies`}
+              placeholder={t.technologiesPlaceholder}
+              value={project.technologies}
+              onChange={(value) => setField("technologies", value)}
+            />
+          </FormField>
 
-              <div className="space-y-2">
-                <Label htmlFor={`technologies-${index}`}>Technologies Used</Label>
-                <Input
-                  id={`technologies-${index}`}
-                  name="technologies"
-                  placeholder="React, Node.js, MongoDB"
-                  value={project.technologies}
-                  onChange={(e) => handleChange(index, e)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`description-${index}`}>Description</Label>
-                <Textarea
-                  id={`description-${index}`}
-                  name="description"
-                  placeholder="Describe your project, its purpose, and your role..."
-                  rows={3}
-                  value={project.description}
-                  onChange={(e) => handleChange(index, e)}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      <Button variant="outline" className="w-full" onClick={handleAddProject}>
-        <Plus className="mr-2 h-4 w-4" /> Add Project
-      </Button>
-    </div>
+          <FormField id={`${id}-description`} label={c.description}>
+            <Textarea
+              id={`${id}-description`}
+              name="description"
+              placeholder={t.descriptionPlaceholder}
+              rows={3}
+              value={project.description}
+              onChange={handleChange}
+            />
+          </FormField>
+        </div>
+      )}
+    />
   )
 }
-

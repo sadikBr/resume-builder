@@ -1,118 +1,57 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import FormField from "@/components/form-field"
+import SortableEntryList from "@/components/sortable-entry-list"
 import type { Language } from "@/types/resume"
-import { Plus, Trash2 } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
+import { resumeTranslations } from "@/lib/i18n"
+
+// Stored values stay in English; only the labels are translated.
+const PROFICIENCY_LEVELS = ["Native", "Fluent", "Advanced", "Intermediate", "Beginner", "mother tongue"]
 
 interface LanguagesFormProps {
   data: Language[]
   updateData: (data: Language[]) => void
 }
 
+const emptyLanguage = (): Language => ({ name: "", proficiency: "" })
+
 export default function LanguagesForm({ data, updateData }: LanguagesFormProps) {
-  const [languagesList, setLanguagesList] = useState<Language[]>(
-    data.length
-      ? data
-      : [
-        {
-          name: "",
-          proficiency: "",
-        },
-      ],
-  )
-
-  const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    const list = [...languagesList]
-    list[index] = { ...list[index], [name]: value }
-    setLanguagesList(list)
-    updateData(list)
-  }
-
-  const handleSelectChange = (index: number, name: string, value: string) => {
-    const list = [...languagesList]
-    list[index] = { ...list[index], [name]: value }
-    setLanguagesList(list)
-    updateData(list)
-  }
-
-  const handleAddLanguage = () => {
-    setLanguagesList([
-      ...languagesList,
-      {
-        name: "",
-        proficiency: "",
-      },
-    ])
-  }
-
-  const handleRemoveLanguage = (index: number) => {
-    const list = [...languagesList]
-    list.splice(index, 1)
-    setLanguagesList(list)
-    updateData(list)
-  }
-
+  const { t: ui, language: uiLanguage } = useLanguage()
+  const t = ui.languages
   return (
-    <div className="space-y-4">
-      {languagesList.map((language, index) => (
-        <Card key={index} className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={() => handleRemoveLanguage(index)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <CardContent className="pt-6">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor={`name-${index}`}>Language</Label>
-                <Input
-                  id={`name-${index}`}
-                  name="name"
-                  placeholder="English"
-                  value={language.name}
-                  onChange={(e) => handleChange(index, e)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`proficiency-${index}`}>Proficiency</Label>
-                <Select
-                  value={language.proficiency}
-                  onValueChange={(value) => handleSelectChange(index, "proficiency", value)}
-                >
-                  <SelectTrigger id={`proficiency-${index}`}>
-                    <SelectValue placeholder="Select proficiency level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Native">Native</SelectItem>
-                    <SelectItem value="Fluent">Fluent</SelectItem>
-                    <SelectItem value="Advanced">Advanced</SelectItem>
-                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="mother tongue">Mother Tongue</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      <Button variant="outline" className="w-full" onClick={handleAddLanguage}>
-        <Plus className="mr-2 h-4 w-4" /> Add Language
-      </Button>
-    </div>
+    <SortableEntryList
+      data={data}
+      updateData={updateData}
+      fallback={[emptyLanguage()]}
+      createEmpty={emptyLanguage}
+      addLabel={t.add}
+      emptyTitle={t.empty}
+      getTitle={(language) => language.name}
+      getSubtitle={(language) => language.proficiency}
+      renderFields={(language, { id, handleChange, setField }) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField id={`${id}-name`} label={t.name}>
+            <Input id={`${id}-name`} name="name" placeholder={t.namePlaceholder} value={language.name} onChange={handleChange} />
+          </FormField>
+          <FormField id={`${id}-proficiency`} label={t.proficiency}>
+            <Select value={language.proficiency} onValueChange={(value) => setField("proficiency", value)}>
+              <SelectTrigger id={`${id}-proficiency`} className="w-full">
+                <SelectValue placeholder={t.proficiencyPlaceholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {PROFICIENCY_LEVELS.map((level) => (
+                  <SelectItem key={level} value={level}>
+                    {resumeTranslations[uiLanguage].proficiency[level]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+        </div>
+      )}
+    />
   )
 }
-

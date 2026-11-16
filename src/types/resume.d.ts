@@ -54,3 +54,26 @@ export interface ResumeData {
   projects: Project[];
   languages: Language[];
 }
+
+export type SectionId = "education" | "experience" | "projects" | "skills" | "languages";
+
+export type ColumnId = "main" | "side";
+
+export interface LayoutSection {
+  id: SectionId;
+  column: ColumnId;
+  visible: boolean;
+}
+
+export interface ResumeLayout {
+  /** 1 = everything stacked full-width, 2 = main column + sidebar. */
+  columns: 1 | 2;
+  sidebarPosition: "left" | "right";
+  /** Sidebar share of the page width, in percent. */
+  sidebarWidth: number;
+  sidebarStyle: "plain" | "tinted";
+  accent: string;
+  skillStyle: "chips" | "inline";
+  /** Global section order; in two-column mode each column keeps the relative order. */
+  sections: LayoutSection[];
+}

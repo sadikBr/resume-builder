@@ -1,13 +1,19 @@
 import ResumeBuilder from "@/components/resume-builder"
+import AppHeader from "@/components/app-header"
+import { LanguageProvider } from "@/components/language-provider"
+import { ResumeStoreProvider } from "@/components/resume-store"
 
 export default function Home() {
   return (
-    <main className="max-w-[95vw] mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold text-center mb-3">Professional Resume Builder</h1>
-      <p className="text-center text-muted-foreground mb-10">
-        Create a professional resume in minutes. Fill in your details, see a real-time preview, and export to PDF.
-      </p>
-      <ResumeBuilder />
-    </main>
+    <LanguageProvider>
+      <ResumeStoreProvider>
+        <div className="min-h-screen bg-muted/40">
+          <AppHeader />
+          <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
+            <ResumeBuilder />
+          </div>
+        </div>
+      </ResumeStoreProvider>
+    </LanguageProvider>
   )
 }

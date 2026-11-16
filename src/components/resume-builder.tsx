@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PersonalInfoForm from "@/components/personal-info-form";
 import EducationForm from "@/components/education-form";
@@ -9,156 +8,37 @@ import ExperienceForm from "@/components/experience-form";
 import SkillsForm from "@/components/skills-form";
 import ProjectsForm from "@/components/projects-form";
 import LanguagesForm from "@/components/languages-form";
+import LayoutForm from "@/components/layout-form";
 import ResumePreview from "@/components/resume-preview";
-import { Download } from "lucide-react";
+import A4PageScaler from "@/components/a4-page-scaler";
+import ExportMenu from "@/components/export-menu";
+import {
+  Briefcase,
+  Eye,
+  FolderGit2,
+  GraduationCap,
+  Languages as LanguagesIcon,
+  LayoutTemplate,
+  Sparkles,
+  User,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { ResumeData } from "@/types/resume";
-import type { ResumeLanguage } from "@/lib/i18n";
+import { useResumeStore } from "@/components/resume-store";
+import { useLanguage } from "@/components/language-provider";
 
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 
-import ProfileImagePlaceholder from '@/assets/profile.png';
-
 export default function ResumeBuilder() {
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personalInfo: {
-      name: "Brahim SADIK",
-      email: "brahimsadik98@gmail.com",
-      phone: "+212 - 668424637",
-      title: "Software Engineer",
-      tagline:
-        "Dynamic and motivated, passionate about software development and problem-solving, creating innovative solutions, and contributing to open-source projects.",
-      website: "https://www.brahimsadik.com",
-      linkedin: "https://www.linkedin.com/in/brahim-sadik",
-      github: "https://www.github.com/sadikBr",
-      photoUrl: ProfileImagePlaceholder.src,
-    },
-    education: [
-      {
-        institution: "National School of Applied Sciences",
-        degree: "Engineering",
-        fieldOfStudy: "Logistics and Supply Chain Management",
-        startDate: "2018",
-        endDate: "2021",
-        location: "Marrakesh, Morocco",
-        description:
-          "Learned about logistics, supply chain management, and software development.",
-      },
-      {
-        institution: "National School of Applied Sciences",
-        degree: "Preparatory Classes",
-        fieldOfStudy: "Core Curriculum",
-        startDate: "2016",
-        endDate: "2018",
-        location: "Marrakesh, Morocco",
-        description:
-          "Learned the basics of programming languages such as C, C++, Matlab and also the engineering sciences.",
-      },
-      {
-        institution: "Demnate Qualifying High School",
-        degree: "Bachelor of Mathematics",
-        fieldOfStudy: "Mathematical Sciences (A)",
-        startDate: "2015",
-        endDate: "2016",
-        location: "Demnate, Morocco",
-        description:
-          "Accumulated knowledge in mathematics and statistics, developing problem-solving skills and analytical thinking.",
-      },
-    ],
-    experience: [
-      {
-        company: "PercallGroup",
-        position: "Technical Support Engineer",
-        startDate: "01 August 2022",
-        endDate: "01 April 2025",
-        location: "Rabat, Morocco",
-        responsibilities:
-          "Providing technical support to PTC customers regarding Windchill PDMLink and Windchill ProjectLink (Administration and Functionality).\n Analyzing customer requirements and providing solutions through investigation (logs, stack traces, debugging, and analysis of the source code) and research in the KB\n Ensure solutions are provided in a timely manner and meet customer expectations\n Collaborate with the R&D teams to identify and resolve issues\n Write articles and publish them to PTC knowledge base.",
-      },
-      {
-        company: "Capgemini Engineering",
-        position: "Intern",
-        startDate: "18 May 2022",
-        endDate: "18 August 2022",
-        location: "Casablanca, Morocco",
-        responsibilities:
-          "Built a fullstack application to calculate CO2 emissions related to company operations.\n Built the frontend using React and the backend using Node.js and Express and MongoDB.\n Used third party API's to get CO2 emission factors and calculate the emissions.",
-      },
-      {
-        company: "AIC Metallurgie",
-        position: "Intern",
-        startDate: "01 April 2021",
-        endDate: "01 August 2021",
-        location: "Kenitra, Morocco",
-        responsibilities:
-          "Proposed a real time control method for welds.\n Studied the welding process and the control methods used in the company along with all the already existing methods.\n Planned the project using GANTT, PDCA, along with the functional analysis.\n Provided a non-destructive method for real time control using industry 4.0 concepts and AI.",
-      },
-    ],
-    skills: [
-      {
-        category:
-          "Strong Knowledge in Mathematics, Optimization, and Statistics",
-        items:
-          "Linear Algebra, Calculus, Probability, Machine Learning, Data Analysis",
-      },
-      {
-        category: "Programming Languages",
-        items: "C, C++, Python, Java SE",
-      },
-      {
-        category: "Web Development",
-        items: "HTML5, CSS3, JavaScript, TypeScript, Node.js, Deno",
-      },
-      {
-        category: "Frameworks and Libraries",
-        items:
-          "React, Vue.js, Next.js, Express.js, Mongoose, Clerk, Drizzle, Prisma, Socket.io",
-      },
-      {
-        category: "Database Management",
-        items: "Oracle, MongoDB, PostgreSQL, MySQL",
-      },
-      {
-        category: "Artificial Intelligence (Beginner)",
-        items:
-          "Algorithms, Supervised Learning, Linear Regression, Logistics Regression, Neural Networks",
-      },
-      {
-        category: "Data Processing and Data Visualization",
-        items:
-          "Pandas, Matplotlib, Power BI (Beginner), Web Scraping, Data Cleaning, Data Transformation.",
-      },
-      {
-        category: "Operating Systems and Tools",
-        items: "Linux, Windows, Git, GitHub, Docker",
-      },
-      {
-        category: "Soft Skills",
-        items:
-          "Communication, Collaboration, Time Management, Adaptability, Problem Solving, Critical Thinking",
-      },
-    ],
-    projects: [
-      {
-        name: "Landing Page for my Portfolio WebSite",
-        url: "https://www.brahimsadik.com",
-        technologies: "Three.js, HTML5, CSS3, TypeScript",
-        description: "",
-      },
-      {
-        name: "Professional Resume Builder",
-        url: "https://resume-builder.brahimsadik.com",
-        description: "",
-        technologies: "Next.js, TypeScript, TailwindCSS",
-      },
-    ],
-    languages: [],
-  });
+  const { resumeData, setResumeData, layout, setLayout, ready, revision } = useResumeStore();
 
-  const [language, setLanguage] = useState<ResumeLanguage>("en");
+  const { language, setLanguage, t } = useLanguage();
 
   const resumePreviewRef = useRef<HTMLDivElement>(null);
+
+  const [pageCount, setPageCount] = useState(1);
 
   const updateResumeData = <K extends keyof ResumeData>(section: K, data: ResumeData[K]) => {
     setResumeData((prev) => ({
@@ -167,127 +47,195 @@ export default function ResumeBuilder() {
     }));
   };
 
-  const handleExportPDF = async () => {
-    const element = resumePreviewRef.current;
-
-    if (!element) return;
+  const exportPages = async (pageIndices: number[]) => {
+    const root = resumePreviewRef.current;
+    if (!root) return;
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 4,
-        logging: false,
-        useCORS: true,
-      });
-
-      const imageData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "p",
         unit: "mm",
         format: "a4",
         putOnlyUsedFonts: true,
+        compress: true,
       });
-
-      // Calculate the PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // Calculate the image dimensions to fit the PDF
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      for (const [n, index] of pageIndices.entries()) {
+        const page = root.querySelector<HTMLElement>(`[data-resume-page="${index}"]`);
+        if (!page) continue;
 
-      pdf.addImage(imageData, 'PNG', 0, 0, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('resume.pdf');
+        const canvas = await html2canvas(page, {
+          scale: 4,
+          logging: false,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          scrollX: 0,
+          scrollY: 0,
+          // The on-screen preview is scaled down to fit; render the pages at
+          // their real A4 size in the cloned document used for the capture.
+          onclone: (clonedDoc) => {
+            const scaler = clonedDoc.querySelector<HTMLElement>("[data-a4-scaler]");
+            if (!scaler) return;
+            scaler.style.transform = "none";
+            scaler.style.setProperty("--hairline", "1px");
+            const frame = scaler.parentElement;
+            if (frame) {
+              frame.style.width = "auto";
+              frame.style.height = "auto";
+              frame.style.overflow = "visible";
+            }
+          },
+        });
 
-      toast("PDF Exported Successfuly.", {
-        description: "Your pdf file has been generated successfuly.",
+        // Each captured page is exactly 210mm x 297mm, so it fills a PDF page.
+        if (n > 0) pdf.addPage();
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
+      }
+
+      pdf.save("resume.pdf");
+
+      toast(t.preview.exported, {
+        description: t.preview.exportedDescription,
       });
     } catch (err) {
-      toast("Export Failed", {
+      toast(t.preview.exportFailed, {
         description: (err as Error).message,
       });
     }
   };
 
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div className="space-y-6">
-        <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="grid grid-cols-6 w-full">
-            <TabsTrigger value="personal">Personal</TabsTrigger>
-            <TabsTrigger value="education">Education</TabsTrigger>
-            <TabsTrigger value="experience">Experience</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="languages">Languages</TabsTrigger>
-          </TabsList>
-          <TabsContent value="personal">
-            <PersonalInfoForm
-              data={resumeData.personalInfo}
-              updateData={(data) => updateResumeData("personalInfo", data)}
-            />
-          </TabsContent>
-          <TabsContent value="education">
-            <EducationForm
-              data={resumeData.education}
-              updateData={(data) => updateResumeData("education", data)}
-            />
-          </TabsContent>
-          <TabsContent value="experience">
-            <ExperienceForm
-              data={resumeData.experience}
-              updateData={(data) => updateResumeData("experience", data)}
-            />
-          </TabsContent>
-          <TabsContent value="skills">
-            <SkillsForm
-              data={resumeData.skills}
-              updateData={(data) => updateResumeData("skills", data)}
-            />
-          </TabsContent>
-          <TabsContent value="projects">
-            <ProjectsForm
-              data={resumeData.projects}
-              updateData={(data) => updateResumeData("projects", data)}
-            />
-          </TabsContent>
-          <TabsContent value="languages">
-            <LanguagesForm
-              data={resumeData.languages}
-              updateData={(data) => updateResumeData("languages", data)}
-            />
-          </TabsContent>
-        </Tabs>
-        <Button onClick={handleExportPDF} className="w-full">
-          <Download className="mr-2 h-4 w-4" /> Export as PDF
-        </Button>
+  const tabs = t.tabs;
+  const sections = [
+    { value: "personal", icon: User, ...tabs.personal },
+    { value: "education", icon: GraduationCap, count: resumeData.education.length, ...tabs.education },
+    { value: "experience", icon: Briefcase, count: resumeData.experience.length, ...tabs.experience },
+    { value: "skills", icon: Sparkles, count: resumeData.skills.length, ...tabs.skills },
+    { value: "projects", icon: FolderGit2, count: resumeData.projects.length, ...tabs.projects },
+    { value: "languages", icon: LanguagesIcon, count: resumeData.languages.length, ...tabs.languages },
+    { value: "layout", icon: LayoutTemplate, ...tabs.layout },
+  ] as const;
+
+  const renderForm = (section: (typeof sections)[number]["value"]) => {
+    switch (section) {
+      case "personal":
+        return <PersonalInfoForm data={resumeData.personalInfo} updateData={(data) => updateResumeData("personalInfo", data)} />;
+      case "education":
+        return <EducationForm data={resumeData.education} updateData={(data) => updateResumeData("education", data)} />;
+      case "experience":
+        return <ExperienceForm data={resumeData.experience} updateData={(data) => updateResumeData("experience", data)} />;
+      case "skills":
+        return <SkillsForm data={resumeData.skills} updateData={(data) => updateResumeData("skills", data)} />;
+      case "projects":
+        return <ProjectsForm data={resumeData.projects} updateData={(data) => updateResumeData("projects", data)} />;
+      case "languages":
+        return <LanguagesForm data={resumeData.languages} updateData={(data) => updateResumeData("languages", data)} />;
+      case "layout":
+        return <LayoutForm layout={layout} updateLayout={setLayout} data={resumeData} />;
+    }
+  };
+
+  // Saved data loads right after mount; until then show placeholders rather
+  // than flashing the sample resume.
+  if (!ready) {
+    return (
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2 xl:gap-8" aria-busy>
+        <div className="space-y-4">
+          <div className="h-[66px] animate-pulse rounded-xl border bg-background" />
+          <div className="h-96 animate-pulse rounded-xl border bg-background" />
+        </div>
+        <div className="aspect-[210/297] animate-pulse rounded-xl border bg-background" />
       </div>
-      <div className="bg-white h-fit rounded-lg shadow-lg p-6 border">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Resume Preview</h2>
-          <div className="flex gap-1" role="group" aria-label="Resume language">
-            <Button
-              size="sm"
-              variant={language === "en" ? "default" : "outline"}
-              onClick={() => setLanguage("en")}
-            >
-              English
-            </Button>
-            <Button
-              size="sm"
-              variant={language === "fr" ? "default" : "outline"}
-              onClick={() => setLanguage("fr")}
-            >
-              Français
-            </Button>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-8">
+      <div className="min-w-0">
+        {/* Forms keep their own editing state: remount them when the data is replaced (reset, other tab). */}
+        <Tabs key={revision} defaultValue="personal" className="w-full gap-4">
+          {/* Equal tiles (icon over label) keep the bar balanced in both languages. */}
+          <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-xl border bg-background p-1.5 shadow-xs sm:grid-cols-7">
+            {sections.map(({ value, label, icon: Icon, ...rest }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                title={label}
+                className={cn(
+                  "group/tab relative h-auto min-w-0 flex-col gap-1 rounded-lg px-1 pt-2.5 pb-2 text-[12px] leading-none text-muted-foreground transition-colors",
+                  "hover:bg-muted/70 hover:text-foreground",
+                  "data-[state=active]:bg-primary/[0.06] data-[state=active]:text-foreground data-[state=active]:shadow-none",
+                  // Active indicator bar along the bottom of the tile.
+                  "after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:opacity-0 after:transition-opacity data-[state=active]:after:opacity-100",
+                )}
+              >
+                <span className="relative">
+                  <Icon className="size-[18px] transition-colors group-data-[state=active]/tab:text-primary" />
+                  {"count" in rest && rest.count > 0 && (
+                    <span className="absolute -top-1.5 -right-2.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-muted px-1 text-[9px] font-semibold tabular-nums text-muted-foreground ring-2 ring-background group-data-[state=active]/tab:bg-primary group-data-[state=active]/tab:text-primary-foreground">
+                      {rest.count}
+                    </span>
+                  )}
+                </span>
+                <span className="max-w-full truncate">{label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {sections.map(({ value, label, description }) => (
+            <TabsContent key={value} value={value} className="space-y-4">
+              <div className="px-1">
+                <h2 className="text-base font-semibold">{label}</h2>
+                <p className="text-sm text-muted-foreground">{description}</p>
+              </div>
+              {renderForm(value)}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
+      <div className="min-w-0 rounded-xl border bg-background p-4 shadow-xs sm:p-5 xl:sticky xl:top-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Eye className="size-4 text-muted-foreground" />
+            <h2 className="text-base font-semibold">{t.preview.title}</h2>
+            {pageCount > 1 && (
+              <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                {t.preview.pages(pageCount)}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-lg border bg-muted p-0.5" role="group" aria-label={t.preview.language}>
+              {([["en", "EN"], ["fr", "FR"]] as const).map(([code, label]) => (
+                <button
+                  key={code}
+                  type="button"
+                  aria-pressed={language === code}
+                  onClick={() => setLanguage(code)}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                    language === code
+                      ? "bg-background text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <ExportMenu pageCount={pageCount} onExport={exportPages} />
           </div>
         </div>
-        <div className="bg-white">
-          <ResumePreview
-            resumePreviewRef={resumePreviewRef}
-            data={resumeData}
-            language={language}
-          />
+        <div className="rounded-lg bg-muted/60 p-3 sm:p-4">
+          <A4PageScaler>
+            <ResumePreview
+              resumePreviewRef={resumePreviewRef}
+              data={resumeData}
+              layout={layout}
+              language={language}
+              onPageCountChange={setPageCount}
+            />
+          </A4PageScaler>
         </div>
       </div>
     </div>
