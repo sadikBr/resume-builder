@@ -160,7 +160,7 @@ export default function ResumeBuilder() {
 
   const resumePreviewRef = useRef<HTMLDivElement>(null);
 
-  const updateResumeData = (section: keyof ResumeData, data: any) => {
+  const updateResumeData = <K extends keyof ResumeData>(section: K, data: ResumeData[K]) => {
     setResumeData((prev) => ({
       ...prev,
       [section]: data,
